@@ -1,0 +1,95 @@
+version: '3'
+
+services:
+  stablediff-rocm:
+    image: ai-suite-rocm:5.7
+    container_name: stablediffusion-rocm
+    environment:
+      TZ: "Europe/Zurich"
+      ROC_ENABLE_PRE_VEGA: 1
+      COMMANDLINE_ARGS: "--listen --enable-insecure-extension-access --opt-split-attention"
+      #HSA_OVERRIDE_GFX_VERSION: 10.3.0
+      #PYTORCH_HIP_ALLOC_CONF: garbage_collection_threshold:0.8,max_split_size_mb:128
+    entrypoint: ["/bin/sh", "-c"]
+    working_dir: /ai/stablediffusion-webui/
+    command: >
+      "rocm-smi; echo launch.py $$COMMANDLINE_ARGS;
+      if [ ! -f ./models/Stable-diffusion/*.ckpt ]; then
+        echo 'Please copy stable diffusion model to stablediff-models directory'
+        echo 'You may need sudo to perform this action'
+        exit 1
+      fi;
+      chmod -R 777 /ai/stablediffusion-webui/outputs;
+      /ai/venv/stablediffusion/bin/python launch.py"
+    ports:
+      - "5000:7860"
+    devices:
+      - "/dev/kfd:/dev/kfd"
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      # - ./stablediffusion/webui:/ai/stablediffusion-webui
+      - ./stablediffusion/models:/ai/stablediffusion-webui/models/
+      - ./stablediffusion/embeddings:/ai/stablediffusion-webui/embeddings/
+      - ./stablediffusion/extensions:/ai/stablediffusion-webui/extensions/
+      - ./stablediffusion/outputs:/ai/stablediffusion-webui/outputs/
+
+  kobold-rocm:
+    image: ai-suite-rocm:5.7
+    container_name: koboldai-rocm
+    environment:
+      TZ: "Europe/Zurich"
+      ROC_ENABLE_PRE_VEGA: 1
+      COMMANDLINE_ARGS: ""
+      # HSA_OVERRIDE_GFX_VERSION: 10.3.0
+      # PYTORCH_HIP_ALLOC_CONF: garbage_collection_threshold:0.8,max_split_size_mb:128
+    entrypoint: ["/bin/sh", "-c"]
+    working_dir: /ai/koboldai/
+    command: ["./koboldcpp.py --config config.kcpps"]
+    ports:
+      - "5001:5001"
+    devices:
+      - "/dev/kfd:/dev/kfd"
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./koboldai/config.kcpps:/ai/koboldai/config.kcpps
+      - ./koboldai/models:/ai/koboldai/localmodels
+  llamacpp-rocm:
+    image: ai-suite-rocm:5.7
+    container_name: llamacpp-rocm
+    environment:
+      TZ: "Europe/Zurich"
+      ROC_ENABLE_PRE_VEGA: 1
+      COMMANDLINE_ARGS: "-m /ai/llamacpp/models/llama2-13b-tiefighter.Q6_K.gguf -c 512 -b 1024 -n 256 --keep 48 --repeat_penalty 1.0 --color -i -r \"User:\" -f prompts/chat-with-ellie.txt"
+      # HSA_OVERRIDE_GFX_VERSION: 10.3.0
+      # PYTORCH_HIP_ALLOC_CONF: garbage_collection_threshold:0.8,max_split_size_mb:128
+    entrypoint: ["/bin/sh", "-c"]
+    working_dir: /ai/llamacpp/
+    command: ["./main $$COMMANDLINE_ARGS"]
+    tty: true
+    devices:
+      - "/dev/kfd:/dev/kfd"
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./llamacpp/models:/ai/llamacpp/models
+      - ./llamacpp/extra:/ai/llamacpp/extra

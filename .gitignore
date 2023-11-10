@@ -1,0 +1,8 @@
+stablediffusion/models/
+stablediffusion/outputs/
+stablediffusion/extensions/
+stablediffusion/embeddings/
+llamacpp/extra/
+llamacpp/models/
+koboldai/models/
+koboldai/presets/
