@@ -1,1 +1,1 @@
-/usr/bin/docker-compose up -d llama-rocm
+/usr/bin/docker-compose up -d llamacpp-rocm
