@@ -2,7 +2,7 @@ version: '3'
 
 services:
   stablediff-rocm:
-    image: ai-suite-rocm:5.7
+    image: ai-suite-rocm:6.0
     container_name: stablediffusion-rocm
     environment:
       TZ: "Europe/Zurich"
@@ -19,7 +19,7 @@ services:
         echo 'You may need sudo to perform this action'
         exit 1
       fi;
-      chmod -R 777 /ai/stablediffusion-webui/outputs;
+      chown -R 1000:0 /ai/stablediffusion-webui/outputs/;
       /ai/venv/stablediffusion/bin/python launch.py"
     ports:
       - "5000:7860"
@@ -41,7 +41,7 @@ services:
       - ./stablediffusion/outputs:/ai/stablediffusion-webui/outputs/
 
   kobold-rocm:
-    image: ai-suite-rocm:5.7
+    image: ai-suite-rocm:6.0
     container_name: koboldai-rocm
     environment:
       TZ: "Europe/Zurich"
@@ -65,7 +65,7 @@ services:
       - ./koboldai/models:/ai/koboldai/localmodels
 
   llamacpp-rocm:
-    image: ai-suite-rocm:5.7
+    image: ai-suite-rocm:6.0
     container_name: llamacpp-rocm
     environment:
       TZ: "Europe/Zurich"
@@ -96,7 +96,7 @@ services:
       - ./llamacpp/extra:/ai/llamacpp/extra
 
   koyhass-rocm:
-    image: ai-suite-rocm:5.7
+    image: ai-suite-rocm:6.0
     container_name: koyhass-rocm
     environment:
       TZ: "Europe/Zurich"
@@ -116,3 +116,30 @@ services:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
+    volumes:
+      - ./kohyass/models:/ai/kohya_ss/models
+      - ./kohyass/extra:/ai/kohya_ss/extra
+      
+  xtts-rocm:
+    image: ai-suite-rocm:6.0
+    container_name: xtts-rocm
+    environment:
+      TZ: "Europe/Zurich"
+    entrypoint: ["/bin/sh", "-c"]
+    working_dir: /ai/xtts/
+    command: ["/ai/venv/xtts/bin/python app.py --host 0.0.0.0 -v v2.0.3"]
+    ports:
+      - "5005:8010"
+    devices:
+      - "/dev/kfd:/dev/kfd"
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./xtts/outputs:/ai/xtts/output
+      - ./xtts/models:/ai/xtts/models
