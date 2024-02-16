@@ -4,5 +4,9 @@ stablediffusion/extensions/
 stablediffusion/embeddings/
 llamacpp/extra/
 llamacpp/models/
+kohyass/extra/
+kohyass/models/
 koboldai/models/
 koboldai/presets/
+xtts/models/
+xtts/outputs
