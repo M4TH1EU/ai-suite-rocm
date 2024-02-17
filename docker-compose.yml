@@ -143,3 +143,5 @@ services:
     volumes:
       - ./xtts/outputs:/ai/xtts/output
       - ./xtts/models:/ai/xtts/models
+      - ./xtts/hfmodels:/root/.cache/huggingface
+#      - ./xtts/finetuned_models:/ai/xtts/finetuned_models

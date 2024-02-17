@@ -121,6 +121,9 @@ RUN python3.10 -m venv /ai/venv/xtts/ --system-site-packages
 RUN sed -i '/torch==2.1.1/d' requirements.txt
 RUN sed -i '/torchaudio==2.1.1/d' requirements.txt
 RUN /ai/venv/xtts/bin/python -m pip install -r requirements.txt
+RUN sed -i 's/device = "cuda" if torch.cuda.is_available() else "cpu"/device = "cpu"/' /ai/xtts/scripts/utils/formatter.py # disable gpu for faster-whipser as ROCM isn't supported yet
+RUN sed -i 's/asr_model = WhisperModel(whisper_model, device=device, compute_type="float16")/asr_model = WhisperModel(whisper_model, device=device, compute_type="int8")/' /ai/xtts/scripts/utils/formatter.py
+
 # Install deepspeed and ninja even though it doesn't work with XTTS (dunno why, compilation errors)
 RUN /ai/venv/xtts/bin/python -m pip install deepspeed ninja
 RUN apt-get install -y ninja-build
