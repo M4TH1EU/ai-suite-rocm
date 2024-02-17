@@ -10,3 +10,4 @@ koboldai/models/
 koboldai/presets/
 xtts/models/
 xtts/outputs
+xtts/hfmodels
