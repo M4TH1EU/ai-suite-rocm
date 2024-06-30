@@ -1,5 +1,7 @@
 # ai-suite-rocm
 
+**(Deprecated : Use [this](https://git.broillet.ch/mathieu/ai-suite-rocm-local) instead)**
+
 This is a simple project to make hosting local LLM and AI tools easily on Linux with AMD GPUs using ROCM.
 
 To use you have to clone the repo and build the docker image, it's the same image for all the services.
